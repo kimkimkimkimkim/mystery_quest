@@ -12,6 +12,7 @@ public class HeroMoveManager : MonoBehaviour {
 	private float disMove = 2f; //移動距離
 
 	private void Update(){
+		return;
 		if(canMove)Flick();
 	}
 
