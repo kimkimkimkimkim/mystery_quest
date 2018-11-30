@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GetObject : MonoBehaviour {
 
 	public Camera camera_object; //カメラを取得
 	public GameObject startSphere;
+	public GameObject goalSphere;
+	public GameObject hero;
     private RaycastHit hit; //レイキャストが当たったものを取得する入れ物
 	
 	private float nextDis = 2;
@@ -15,6 +18,8 @@ public class GetObject : MonoBehaviour {
 	private GameObject lineObject;
 	private GameObject field;
 	private bool canDraw = true;
+	private bool isGoal = false;
+	private bool canTouch = true;
 	private Vector3 startPos;
 
 	private void Start(){
@@ -25,6 +30,7 @@ public class GetObject : MonoBehaviour {
 	}
 
     void Update () {
+		if(!canTouch)return;
         if (Input.GetMouseButton(0)) //マウスがクリックされたら
         {
             Ray ray = camera_object.ScreenPointToRay(Input.mousePosition); //マウスのポジションを取得してRayに代入
@@ -32,14 +38,12 @@ public class GetObject : MonoBehaviour {
             if(Physics.Raycast(ray,out hit))  //マウスのポジションからRayを投げて何かに当たったらhitに入れる
             {
             	string objectName = hit.collider.gameObject.name; //オブジェクト名を取得して変数に入れる
-            	Debug.Log(objectName); //オブジェクト名をコンソールに表示
 
 				if(hit.collider.gameObject.CompareTag("Tile")){
 					//hitしたオブジェクトがTileだった場合
 					GameObject sphere = hit.collider.gameObject.transform.GetChild(1).gameObject;
 					if(lineArr.Count != 0){
 						Vector3 angle = sphere.transform.position - lineArr[lineArr.Count - 1];
-						Debug.Log("A:"+sphere.transform.position + " B:" + prevSphere.transform.position + " angle:" + angle/angle.magnitude);
 						//Rayの作成　　　　　　　↓Rayを飛ばす原点　　　↓Rayを飛ばす方向
 						Ray rayObstacle= new Ray (prevSphere.transform.position, angle/angle.magnitude);
 
@@ -57,8 +61,13 @@ public class GetObject : MonoBehaviour {
 						//                  ↓Ray  ↓Rayが当たったオブジェクト ↓距離
 						if (Physics.Raycast(rayObstacle,out hit,distance))
 						{
-							//Rayが当たったオブジェクトのtagがPlayerだったら
-								Debug.Log ("Rayが"+hit.collider.gameObject.name+"に当たった");
+							//Rayが当たったオブジェクトに当たったら線を引けないようにする
+							//Destroy(hit.collider.gameObject);
+							canDraw = false;
+						}
+						if(sphere.transform.position == lineArr[lineArr.Count-1]){
+							//戻ってきたらcanDraw = true
+							canDraw = true;
 						}
 					}
 					if(!canDraw)return; //canDrawじゃないとリターン
@@ -77,7 +86,13 @@ public class GetObject : MonoBehaviour {
         }
 
 		if  (Input.GetMouseButtonUp(0)){
-			DeleteLine();
+			if(!isGoal){
+				//ゴールしてなければ全部消す
+				DeleteLine();
+			}else{
+				//ゴールしてれば移動
+				MoveHero();
+			}
 		}
     }
 
@@ -85,10 +100,13 @@ public class GetObject : MonoBehaviour {
 		if(IsExist(pos)){
 			//linArrになければ追加
 			lineArr.Add(pos);
+			//goalだったらflagを立てる
+			if(pos == goalSphere.transform.position)isGoal = true;
 		}else if(lineArr[lineArr.Count-2] == pos){
 			//一個前だったら
 			prevSphere.SetActive(false);
 			lineArr.RemoveAt(lineArr.Count-1);
+			isGoal = false;
 		}
 
 		if(lineArr.Count >= 2)CreateLine();
@@ -129,6 +147,41 @@ public class GetObject : MonoBehaviour {
 		}
 		lineArr.Clear();
 		canDraw=true;
+	}
+
+	private void MoveHero(){
+		hero.GetComponent<Animator>().SetBool("isWalk",true);
+		canTouch = false;
+		for(int i=1;i<lineArr.Count;i++){
+			NextMove(i);
+		}
+	}
+
+	private void NextMove(int i){
+		float timeMove = 0.2f;
+		StartCoroutine(DelayMethod(timeMove * (i-1), () => {
+			//回転
+			Vector3 relativePos = lineArr[i] - lineArr[i-1];
+			Quaternion rotation = Quaternion.LookRotation(relativePos);
+			hero.transform.rotation = rotation;
+			iTween.MoveTo(hero, iTween.Hash("position",lineArr[i],"time",timeMove,"EaseType",iTween.EaseType.linear));
+			if(i==lineArr.Count-1){
+				Invoke("ClearGame",timeMove);
+			}
+		}));
+	}
+
+	private void ClearGame(){
+		hero.GetComponent<Animator>().SetBool("isWalk",false);
+		GameObject.Find("Canvas").GetComponent<ClearAnimation>().StartAnimation();
+		DeleteLine();
+
+	}
+
+	private IEnumerator DelayMethod(float waitTime, Action action)
+	{
+		yield return new WaitForSeconds(waitTime);
+		action();
 	}
 
 
