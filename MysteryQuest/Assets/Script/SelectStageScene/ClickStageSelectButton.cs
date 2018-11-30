@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class ClickStageSelectButton : MonoBehaviour {
 
+	public int stageNum;
+
 	public void OnClick(){
-		FadeManager.Instance.LoadScene("GameScene",1.5f);
+		PlayerPrefs.SetInt("nowStage",stageNum);
+		Debug.Log("nowStage" + PlayerPrefs.GetInt("nowStage"));
+		FadeManager.Instance.LoadScene("GameScene",0.5f);
 	}
 }

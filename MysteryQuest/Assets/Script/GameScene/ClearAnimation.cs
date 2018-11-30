@@ -26,7 +26,7 @@ public class ClearAnimation : MonoBehaviour {
 	private float timeShowPopUp = 0.5f;
 
 	private void Start(){
-		containerUI = transform.GetChild(0).gameObject;
+		containerUI = transform.GetChild(1).gameObject;
 		screenDimmed = containerUI.transform.GetChild(0).gameObject;
 		titleDeco = containerUI.transform.GetChild(1).gameObject;
 		popup = containerUI.transform.GetChild(2).gameObject;
@@ -49,6 +49,13 @@ public class ClearAnimation : MonoBehaviour {
 		popup.SetActive(false);
 
 		ScreenFadeIn(); //screenDimmedをフェードイン
+		
+		int nowStage = PlayerPrefs.GetInt("nowStage");
+		int reachStage = PlayerPrefs.GetInt("reachStage");
+		int stagenum = (nowStage > reachStage) ? nowStage : reachStage;
+		Debug.Log("before now:" + PlayerPrefs.GetInt("nowStage") + " reach:" + PlayerPrefs.GetInt("reachStage"));
+		PlayerPrefs.SetInt("reachStage",stagenum);
+		Debug.Log("after now:" + PlayerPrefs.GetInt("nowStage") + " reach:" + PlayerPrefs.GetInt("reachStage"));
 	}
 
 	//screenDimmedのフェードイン

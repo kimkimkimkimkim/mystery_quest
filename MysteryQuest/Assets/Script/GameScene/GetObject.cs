@@ -26,7 +26,7 @@ public class GetObject : MonoBehaviour {
 		camera_object = GameObject.Find("Main Camera").GetComponent<Camera>();
 		lineObject = GameObject.Find("LineRendererObject");
 		field = GameObject.Find("Field");
-		startPos = startSphere.transform.position;
+		//startPos = startSphere.transform.position;
 	}
 
     void Update () {
@@ -34,7 +34,6 @@ public class GetObject : MonoBehaviour {
         if (Input.GetMouseButton(0)) //マウスがクリックされたら
         {
             Ray ray = camera_object.ScreenPointToRay(Input.mousePosition); //マウスのポジションを取得してRayに代入
-
             if(Physics.Raycast(ray,out hit))  //マウスのポジションからRayを投げて何かに当たったらhitに入れる
             {
             	string objectName = hit.collider.gameObject.name; //オブジェクト名を取得して変数に入れる
@@ -42,82 +41,60 @@ public class GetObject : MonoBehaviour {
 				if(hit.collider.gameObject.CompareTag("Tile")){
 					//hitしたオブジェクトがTileだった場合
 					GameObject sphere = hit.collider.gameObject.transform.GetChild(1).gameObject;
-					if(lineArr.Count != 0){
-						Vector3 angle = sphere.transform.position - lineArr[lineArr.Count - 1];
-						//Rayの作成　　　　　　　↓Rayを飛ばす原点　　　↓Rayを飛ばす方向
-						Ray rayObstacle= new Ray (prevSphere.transform.position, angle/angle.magnitude);
-
-						//Rayが当たったオブジェクトの情報を入れる箱
-						RaycastHit hit;
-
-						//Rayの飛ばせる距離
-						int distance = (int)nextDis;
-						//distance = 10;
-
-						//Rayの可視化    ↓Rayの原点　　　　↓Rayの方向　　　　　　　　　↓Rayの色
-						Debug.DrawLine (rayObstacle.origin, rayObstacle.direction * distance, Color.red);
-
-						//もしRayにオブジェクトが衝突したら
-						//                  ↓Ray  ↓Rayが当たったオブジェクト ↓距離
-						if (Physics.Raycast(rayObstacle,out hit,distance))
-						{
-							//Rayが当たったオブジェクトに当たったら線を引けないようにする
-							//Destroy(hit.collider.gameObject);
-							canDraw = false;
-						}
-						if(sphere.transform.position == lineArr[lineArr.Count-1]){
-							//戻ってきたらcanDraw = true
-							canDraw = true;
-						}
+					if(lineArr.Count == 0){
+						//最初はヒーローのいる位置じゃないとだめ
+						if(!(sphere.transform.position.x == hero.transform.position.x &&
+							sphere.transform.position.z == hero.transform.position.z))return;
 					}
-					if(!canDraw)return; //canDrawじゃないとリターン
-					if(lineArr.Count == 0 && sphere != startSphere)return; //最初の位置じゃなければリターン
-					//隣じゃなければリターン
-					if(lineArr.Count != 0){
-						float dis = (sphere.transform.position - prevSphere.transform.position).sqrMagnitude;
-						if(dis != nextDis*nextDis)return;
-					}
-					sphere.SetActive(true);
-					AddArr(sphere.transform.position);
-					prevSphere = sphere;
+					/* Arrにもともと入ってたらそのまま新しくて隣なら追加 */
+					CheckArr(hit.collider.gameObject);
 				}
 				
             }
         }
-
-		if  (Input.GetMouseButtonUp(0)){
-			if(!isGoal){
-				//ゴールしてなければ全部消す
-				DeleteLine();
-			}else{
-				//ゴールしてれば移動
-				MoveHero();
-			}
-		}
     }
 
-	private void AddArr(Vector3 pos){
-		if(IsExist(pos)){
-			//linArrになければ追加
-			lineArr.Add(pos);
-			//goalだったらflagを立てる
-			if(pos == goalSphere.transform.position)isGoal = true;
-		}else if(lineArr[lineArr.Count-2] == pos){
-			//一個前だったら
-			prevSphere.SetActive(false);
-			lineArr.RemoveAt(lineArr.Count-1);
-			isGoal = false;
+	private void CheckArr(GameObject tile){
+		Vector3 spherePos = tile.transform.GetChild(1).gameObject.transform.position;
+		GameObject sphere = tile.transform.GetChild(1).gameObject;
+		if(!IsExist(spherePos)){
+			//Arrにない
+			if(lineArr.Count==0){
+				//最初なら追加
+				lineArr.Add(spherePos);
+				prevSphere = sphere;
+				sphere.SetActive(true);
+				CreateLine();
+			}else{
+				/* 隣かどうか */
+				float dis = (spherePos - lineArr[lineArr.Count-1]).sqrMagnitude;
+				if(dis == nextDis*nextDis){
+					//隣なら追加
+					lineArr.Add(spherePos);
+					prevSphere = sphere;
+					sphere.SetActive(true);
+					CreateLine();
+				}
+			}
+		}else {
+			if(lineArr.Count >= 2){
+				if(lineArr[lineArr.Count - 2] == spherePos){
+					//Arrにあったけど１個前なので最新のやつを消す
+					prevSphere.SetActive(false);
+					prevSphere = sphere;
+					lineArr.RemoveAt(lineArr.Count-1);
+					CreateLine();
+				}
+			}
 		}
-
-		if(lineArr.Count >= 2)CreateLine();
 	}
 
 
 	private bool IsExist(Vector3 pos){
 		for(int i=0;i<lineArr.Count;i++){
-			if(lineArr[i] == pos)return false;
+			if(lineArr[i] == pos)return true;
 		}
-		return true;
+		return false;
 	}
 
 	private void CreateLine(){
@@ -135,6 +112,10 @@ public class GetObject : MonoBehaviour {
 			line.endWidth = 0.5f;
 			line.startColor = Color.red;
 		}
+
+		//クリアしたか判定
+		//lineArrの要素数が全タイルの要素数と等しいとクリア
+		if(lineArr.Count == field.transform.Find("Map").transform.childCount)MoveHero();
 	}
 
 	private void DeleteLine(){
@@ -158,7 +139,7 @@ public class GetObject : MonoBehaviour {
 	}
 
 	private void NextMove(int i){
-		float timeMove = 0.2f;
+		float timeMove = 0.3f;
 		StartCoroutine(DelayMethod(timeMove * (i-1), () => {
 			//回転
 			Vector3 relativePos = lineArr[i] - lineArr[i-1];
