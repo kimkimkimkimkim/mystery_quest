@@ -8,6 +8,7 @@ public class GetObject : MonoBehaviour {
 	public Camera camera_object; //カメラを取得
 	public GameObject startSphere;
 	public GameObject goalSphere;
+	public GameObject linePrefab;
 	public GameObject hero;
     private RaycastHit hit; //レイキャストが当たったものを取得する入れ物
 	
@@ -103,14 +104,16 @@ public class GetObject : MonoBehaviour {
 			Destroy(lineObject.transform.GetChild(i).gameObject);
 		}
 		for(int i=0;i<lineArr.Count-1;i++){
-			GameObject newLine = new GameObject ("Line");
+			//GameObject newLine = new GameObject ("Line");
+			GameObject newLine = (GameObject)Instantiate(linePrefab);
+			newLine.name = "Line";
 			newLine.transform.SetParent(lineObject.transform,false);
-        	LineRenderer line = newLine.AddComponent<LineRenderer> ();
+			//LineRenderer line = newLine.AddComponent<LineRenderer> ();
+			LineRenderer line = newLine.GetComponent<LineRenderer> ();
 			line.SetPosition(0,lineArr[i]);
 			line.SetPosition(1,lineArr[i+1]);
 			line.startWidth = 0.5f;
 			line.endWidth = 0.5f;
-			line.startColor = Color.red;
 		}
 
 		//クリアしたか判定

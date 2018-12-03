@@ -9,7 +9,8 @@ public class ClickPlayButton : MonoBehaviour {
 	public Sprite[] sprite = new Sprite[2]; //PlayButtonの画像 0→通常 1→Press
 
 	public void OnClick(){
-		SceneManager.LoadScene ("StageSelectScene");
+		//SceneManager.LoadScene ("StageSelectScene");
+		FadeManager.Instance.LoadScene("GameScene",1.0f);
 	}
 
 	public void PointerDown(){

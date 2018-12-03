@@ -5,7 +5,7 @@ using UnityEngine;
 public class ClickNextButton : MonoBehaviour {
 
 	public void OnClick(){
-		PlayerPrefs.SetInt("nowStage",PlayerPrefs.GetInt("nowStage") + 1);
+		//PlayerPrefs.SetInt("stage",PlayerPrefs.GetInt("stage") + 1);
 		FadeManager.Instance.LoadScene("GameScene",0.5f);
 	}
 }

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "507095218706",
+    "firebase_url": "https://mysteryquest-7d361.firebaseio.com",
+    "project_id": "mysteryquest-7d361",
+    "storage_bucket": "mysteryquest-7d361.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:507095218706:android:3f71a7d9805bb6a7",
+        "android_client_info": {
+          "package_name": "com.kimsangwoo.mysteryquest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "507095218706-jr4np9kvglminhupkv2c49l2nnaaevnj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIhLcqgkwAzbqKXcOs6NKbzUthM7pXwG8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

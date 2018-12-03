@@ -53,7 +53,9 @@ MonoBehaviour:
     - tilestate: 00000000000000000000000001000000
     - tilestate: 00000000010000000200000000000000
     - tilestate: 00000000000000000000000000000000
-  - tileposition: []
+  - tileposition:
+    - tilestate: 000000000000000000000000
+    - tilestate: 020000000100000000000000
   - tileposition: []
   - tileposition: []
   - tileposition: []

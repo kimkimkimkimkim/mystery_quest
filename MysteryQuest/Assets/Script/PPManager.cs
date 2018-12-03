@@ -10,6 +10,7 @@ public class PPManager : MonoBehaviour {
 			"maxStage": int ステージの最大個数
 			"nowStage": int 現在プレイしているステージ番号
 			"reachStage": int 到達しているステージ番号
+			"stage": int 
 		}
 	 */
 }

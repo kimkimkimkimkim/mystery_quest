@@ -7,6 +7,6 @@ public class UpdateStageText : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		this.GetComponent<Text>().text = "Stage " + PlayerPrefs.GetInt("nowStage").ToString();
+		this.GetComponent<Text>().text = "Stage " + PlayerPrefs.GetInt("stage",1).ToString();
 	}
 }

@@ -42,6 +42,7 @@ public class ClearAnimation : MonoBehaviour {
 	}
 
 	public void StartAnimation(){
+		PlayerPrefs.SetInt("stage",PlayerPrefs.GetInt("stage") + 1);
 		/*初期状態 */
 		containerUI.SetActive(true);
 		screenDimmed.SetActive(false);
@@ -125,6 +126,7 @@ public class ClearAnimation : MonoBehaviour {
 				,"time",timeScale,"delay",timeScale));
 		}));
 		StartCoroutine(DelayMethod(timeSpan, ()=> {
+			AnimPopUp(titleDeco);
 			Star.transform.GetChild(1).gameObject.SetActive(true);
 			
 			iTween.ScaleTo(Star.transform.GetChild(1).gameObject,iTween.Hash("x",scaleBig,"y",scaleBig
@@ -151,18 +153,18 @@ public class ClearAnimation : MonoBehaviour {
 			AnimPopUp(Gold);
 		}));
 		StartCoroutine(DelayMethod(0.3f,() => {
-			AnimPopUp(Clover);
+			//AnimPopUp(Clover);
 		}));
 		StartCoroutine(DelayMethod(0.4f,() => {
-			AnimPopUp(Horner);
+			//AnimPopUp(Horner);
 		}));
-		StartCoroutine(DelayMethod(0.5f,() => {
+		StartCoroutine(DelayMethod(0.3f,() => {
 			AnimPopUp(buttonBlue);
 		}));
 		StartCoroutine(DelayMethod(0.6f,() => {
-			AnimPopUp(buttonBrown);
+			//AnimPopUp(buttonBrown);
 		}));
-		StartCoroutine(DelayMethod(0.7f,() => {
+		StartCoroutine(DelayMethod(0.4f,() => {
 			AnimPopUp(buttonGreen);
 		}));
 	}
@@ -170,9 +172,9 @@ public class ClearAnimation : MonoBehaviour {
 	private void AnimPopUp(GameObject obj){
 		obj.SetActive(true);
 
-		iTween.ScaleFrom(obj, iTween.Hash("x",0.1f,"y",0.1f,"time",0.2f));
-		iTween.ScaleTo(obj,iTween.Hash("x",1.2f,"y",1.2f,"time",0.1f,"delay",0.2f));
-		iTween.ScaleTo(obj,iTween.Hash("x",1.2f,"y",1.2f,"time",0.1f,"delay",0.3f));
+		iTween.ScaleTo(obj, iTween.Hash("x",1,"y",1f,"time",0.2f));
+		//iTween.ScaleTo(obj,iTween.Hash("x",1.2f,"y",1.2f,"time",0.1f,"delay",0.2f));
+		//iTween.ScaleTo(obj,iTween.Hash("x",1.2f,"y",1.2f,"time",0.1f,"delay",0.3f));
 	}
 
 	private void UpdateAlfaPopUp(float a){
