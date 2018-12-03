@@ -148,7 +148,11 @@ public class ClearAnimation : MonoBehaviour {
 		AnimPopUp(ScoreLabel);
 		StartCoroutine(DelayMethod(0.1f,() => {
 			AnimPopUp(ScoreLabel);
+			AnimPopUp(Gold);
+			AnimPopUp(buttonBlue);
+			AnimPopUp(buttonGreen);
 		}));
+		/* 
 		StartCoroutine(DelayMethod(0.2f,() => {
 			AnimPopUp(Gold);
 		}));
@@ -167,6 +171,7 @@ public class ClearAnimation : MonoBehaviour {
 		StartCoroutine(DelayMethod(0.4f,() => {
 			AnimPopUp(buttonGreen);
 		}));
+		*/
 	}
 
 	private void AnimPopUp(GameObject obj){

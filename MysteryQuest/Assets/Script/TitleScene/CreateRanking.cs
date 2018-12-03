@@ -11,6 +11,9 @@ public class CreateRanking : MonoBehaviour {
 	public GameObject numPrefab;
 	public GameObject scorePrefab;
 	public GameObject namePrefab;
+	public GameObject myRank;
+	public GameObject myScore;
+	public GameObject myName;
 	public Sprite[] spriteNum = new Sprite[3];
 
 	private GameObject content;
@@ -45,31 +48,37 @@ public class CreateRanking : MonoBehaviour {
 		  }
 		});
 
+		
+
+		
+	}
+
+	private void OnEnable(){
 		content = this.transform.GetChild(0).GetChild(0).gameObject;
 		contNum = content.transform.Find("Num").gameObject;
 		contScore = content.transform.Find("Score").gameObject;
 		contUsername = content.transform.Find("Name").gameObject;
-
+		WriteRanking();
 		GetRanking();
-		for(int i=0;i<0;i++){
-			/* numの生成*/
-			GameObject num = (GameObject)Instantiate(numPrefab);
-			if(i<3)num.GetComponent<Image>().sprite = spriteNum[i];
-			num.transform.GetChild(0).gameObject.GetComponent<Text>().text = (i+1).ToString();
-			num.transform.SetParent(contNum.transform,false);
+	}
 
-			/* scoreの生成 */
-			GameObject score = (GameObject)Instantiate(scorePrefab);
-			score.transform.SetParent(contScore.transform,false);
-
-			/* nameの生成 */
-			GameObject username = (GameObject)Instantiate(namePrefab);
-			username.transform.SetParent(contUsername.transform,false);
-
-		}
+	public void WriteRanking(){
+		// Get the root reference location of the database.
+		reference = FirebaseDatabase.DefaultInstance.RootReference;
+		//User user = new User(name,score);
+		string json = "{\"username\":\"" + PlayerPrefs.GetString("username") + "\",\"score\":" + (-1*PlayerPrefs.GetInt("stage")) +"}";
+		//Debug.Log("reference:"+reference);
+		reference.Child("ranking").Child(PlayerPrefs.GetString("userid")).SetRawJsonValueAsync(json);
 	}
 
 	private void GetRanking(){
+		/* containerの中身を空に */
+		for(int i=0;i<contNum.transform.childCount;i++){
+			Debug.Log("入った");
+			Destroy(contNum.transform.GetChild(i).gameObject);
+			Destroy(contScore.transform.GetChild(i).gameObject);
+			Destroy(contUsername.transform.GetChild(i).gameObject);
+		}
 		// Set up the Editor before calling into the realtime database.
 
 		// Get the root reference location of the database.
@@ -88,49 +97,75 @@ public class CreateRanking : MonoBehaviour {
 		    int rank = 1;
 			bool flag = false;
 			string userid = PlayerPrefs.GetString("userid");
-			Debug.Log("snapshot:" + snapshot);
+			//Debug.Log("snapshot:" + snapshot);
 		    while(en.MoveNext()){ //１件ずつ処理
 				DataSnapshot data = en.Current; //データを取る
 				string name = data.Child("username").GetValue(true).ToString(); //名前を取得
 				string score = data.Child("score").GetValue(true).ToString().Substring(1); //スコアを取る
 				if(score=="")score = "0"; //scoreが0の時
-				Debug.Log("username:" + name + " score:" + score);
-				/* 
-					DataSnapshot data = en.Current; //データ取る
-					string name = data.Child("username").GetValue(true).ToString(); //名前取る
-					string score = data.Child("score").GetValue(true).ToString().Substring(1); //スコアを取る
-					if(score=="")score = "0";
-					string id = data.Key.ToString(); //useridを取る
-					if(rank<=10){
-						//Textに反映
-						GameObject row = rankingSpace.transform.GetChild(rank).gameObject;
-						row.transform.GetChild(0).gameObject.GetComponent<Text>().text = (rank).ToString(); //順位
-						row.transform.GetChild(2).gameObject.GetComponent<Text>().text = score; //スコア
-						row.transform.GetChild(1).gameObject.GetComponent<Text>().text = name; //名前
-						if(userid == id){
-							//自分の時はハイライト
-							row.GetComponent<Image>().enabled = true;
-							flag = true;
-						}
-					}
-					if(flag && rank > 10){
-						break;
-					}
-					if(userid == id && rank>10){
-						//Textに反映
-						GameObject row = rankingSpace.transform.GetChild(10).gameObject;
-						row.transform.GetChild(0).gameObject.GetComponent<Text>().text = (rank).ToString(); //順位
-						row.transform.GetChild(2).gameObject.GetComponent<Text>().text = score; //スコア
-						row.transform.GetChild(1).gameObject.GetComponent<Text>().text = name; //名前
-						row.GetComponent<Image>().enabled = true;
-						break;
-					}
-					*/
+				ReflectText(rank,score,name);
+
+				string id = data.Key.ToString(); //useridを取得
+				if(id == PlayerPrefs.GetString("userid")){
+					//自分のだった時
+					AddMyRank(rank, score);
+				}
 				
-		      rank++;
+		      	rank++;
 		    }
+
+			ResizeContent(rank);
 
 		}
 		});
 	}
+
+	//自分のスコアは別で表示
+	private void AddMyRank(int rank,string score_str){
+		/* numの生成*/
+		rank--;
+		myRank.transform.GetChild(0).gameObject.GetComponent<Text>().text = (rank+1).ToString();
+		if(rank<3){
+			myRank.GetComponent<Image>().sprite = spriteNum[rank];
+			myRank.transform.GetChild(0).gameObject.SetActive(false);
+		}
+
+		/* score */
+		myScore.GetComponent<Text>().text = score_str;
+
+		/* name */
+		myName.GetComponent<Text>().text = PlayerPrefs.GetString("username");
+	}
+
+	private void ResizeContent(int rank){
+		rank--;
+		contNum.GetComponent<RectTransform>().sizeDelta = new Vector2(100,(float)(rank * 116 + (rank-1) * 47.5));
+		contScore.GetComponent<RectTransform>().sizeDelta = new Vector2(200,(float)(rank * 116 + (rank-1) * 47.5));
+		contUsername.GetComponent<RectTransform>().sizeDelta = new Vector2(300,(float)(rank * 116 + (rank-1) * 47.5));
+		Debug.Log("rank: " + rank);
+	}
+
+	//Textに反映させる
+	private void ReflectText(int rank,string score_str,string name_str){
+		Debug.Log("username:" + name_str + " score:" + score_str);
+		/* numの生成*/
+		rank--;
+		GameObject num = (GameObject)Instantiate(numPrefab);
+		num.transform.GetChild(0).gameObject.GetComponent<Text>().text = (rank+1).ToString();
+		if(rank<3){
+			num.GetComponent<Image>().sprite = spriteNum[rank];
+			num.transform.GetChild(0).gameObject.SetActive(false);
+		}
+		num.transform.SetParent(contNum.transform,false);
+
+		/* scoreの生成 */
+		GameObject score = (GameObject)Instantiate(scorePrefab);
+		score.transform.SetParent(contScore.transform,false);
+		score.GetComponent<Text>().text = score_str;
+
+		/* nameの生成 */
+		GameObject username = (GameObject)Instantiate(namePrefab);
+		username.transform.SetParent(contUsername.transform,false);
+		username.GetComponent<Text>().text = name_str;
+	}	
 }

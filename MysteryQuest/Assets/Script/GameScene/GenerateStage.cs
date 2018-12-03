@@ -19,9 +19,10 @@ public class GenerateStage : MonoBehaviour {
 	private List<List<string>> stage = new List<List<string>>();
 
 	private int tileCount = 0; //タイルの個数
-	private int width = 3;
-	private int height = 3;
-	private int blankNum = 3; //空白の場所の個数の最大値
+	private int width = 5;
+	private int height = 8;
+	private int blankNum = 15; //空白の場所の個数の最大値
+	private int blankBlockNum = 3; //空白の塊の個数の最小値
 
 	private void Start(){
 		for(int i=0;i<height;i++){
@@ -32,6 +33,49 @@ public class GenerateStage : MonoBehaviour {
 			stage.Add(row);
 		}
 		//Debug.Log(UnityEngine.Random.Range(0,1));
+		/* レベル調整 */
+		int stageNum = PlayerPrefs.GetInt("stage");
+		//int level = (stageNum%10==0)? 10 : stageNum%10;
+		int level = UnityEngine.Random.Range(1,11);
+		//level = 9;
+		switch(level){
+			case 1:
+			case 2:
+				width = 3;
+				height = 3;
+				blankNum = 3;
+				blankBlockNum = 1;
+				break;
+			case 3:
+			case 4:
+			case 5:
+				width = 4;
+				height = 4;
+				blankNum = 5;
+				blankBlockNum = 2;
+				break;
+			case 6:
+			case 7:
+			case 8:
+				width = 5;
+				height = 5;
+				blankNum = 5;
+				blankBlockNum = 3;
+				break;
+			case 9:
+				width = 6;
+				height = 6;
+				blankNum = 5;
+				blankBlockNum = 3;
+				break;
+			case 10:
+				width = 6;
+				height = 7;
+				blankNum = 15;
+				blankBlockNum = 4;
+				break;
+		}
+
 		Generate();
 		
 		// Debug.Log(stage[0][0]+ " " +"o"+ " " +stage[0][2]);
@@ -41,9 +85,11 @@ public class GenerateStage : MonoBehaviour {
 
 	private void Generate(){
 		/* 配列の初期化 */
+		
 		for(int i=0;i<height;i++){
+			stage[i].Clear();
 			for(int j=0;j<width;j++){
-				stage[i][j] = "x";
+				stage[i].Add("x");
 			}
 		}
 		tileCount = 0;
@@ -136,6 +182,8 @@ public class GenerateStage : MonoBehaviour {
 		}
 	}
 
+
+
 	private void Finish(){
 		//ShowArr();
 		if(width * height - tileCount > blankNum){
@@ -158,9 +206,56 @@ public class GenerateStage : MonoBehaviour {
 			if(h0==height || hM==height || w0==width || wM==width){
 				Generate();
 			}else{
-				GenerateField();
+				if(BlankCheck() <blankBlockNum){
+					Generate();
+				}else{
+					GenerateField();
+				}
+				//ShowArr();
+				/*
+				if(!BlankCheck()){
+					//blankの塊が2つ以下だったら
+					Generate();
+				}else{
+					//blankの塊が3つ以上あったらOK
+					GenerateField();
+				}
+				*/
 			}
 		}
+	}
+
+	//blankの塊が3つ以上あったらtrue
+	private int BlankCheck(){
+		int num = 0;
+		for(int i=0;i<height;i++){
+			for(int j=0;j<width;j++){
+				if(stage[i][j] == "x"){
+					num++;
+					//blankだったら
+					//stage[i][j] = "_";
+					SearchBlank(i,j,num);
+				}
+			}
+		}
+		//Debug.Log("blankの塊の個数:" + num);
+		return num;
+	}
+
+	private void SearchBlank(int h,int w,int num){
+		stage[h][w] = "_" + num.ToString();
+		int hP = (h+1==height)? h : h+1;
+		int hM = (h-1==-1)? 0 : h-1;
+		int wP = (w+1==width)? w : w+1;
+		int wM = (w-1==-1)? w : w-1;
+		//左
+		if(stage[h][wM]=="x")SearchBlank(h,wM,num);
+		//右
+		if(stage[h][wP]=="x")SearchBlank(h,wP,num);
+		//上
+		if(stage[hM][w]=="x")SearchBlank(hM,w,num);
+		//下
+		if(stage[hP][w]=="x")SearchBlank(hP,w,num);
 	}
 
 	private void GenerateField(){

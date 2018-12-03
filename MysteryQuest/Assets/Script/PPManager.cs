@@ -6,11 +6,11 @@ public class PPManager : MonoBehaviour {
 
 	/*
 		{	
-			//1から始まる
-			"maxStage": int ステージの最大個数
-			"nowStage": int 現在プレイしているステージ番号
-			"reachStage": int 到達しているステージ番号
-			"stage": int 
+			"stage": int ,
+			"username" : string ユーザーネーム
+			"userid" : string ユーザーid
+			"bgm" : int 0,1
+			"vibe" : int 0,1
 		}
 	 */
 }
