@@ -5,7 +5,7 @@ using GoogleMobileAds.Api;
  
 public class GoogleAds : MonoBehaviour {
 
-	private bool testDebug = true;
+	private bool testDebug = false;
  
 	// Use this for initialization
 	void Start () {
@@ -14,13 +14,20 @@ public class GoogleAds : MonoBehaviour {
 		if(testDebug){
 			appId = "ca-app-pub-3940256099942544~3347511713";
 		}else{
-			appId = "ca-app-pub-6653853739750121~8204093814";
+			#if UNITY_IPHONE
+			appId = "ca-app-pub-6653853739750121/9648288992";
+			#elif UNITY_ANDROID
+			appId = "ca-app-pub-6653853739750121~1001967624";
+			#else
+			appId = "unexpected_platform";
+			#endif
 		}
         // Initialize the Google Mobile Ads SDK.
         MobileAds.Initialize(appId);
  
         RequestBanner();
 	}
+
     private void RequestBanner()
     {
  
@@ -29,7 +36,13 @@ public class GoogleAds : MonoBehaviour {
 		if(testDebug){
 			adUnitId = "ca-app-pub-3940256099942544/6300978111";
 		}else{
+			#if UNITY_IPHONE
 			adUnitId = "ca-app-pub-6653853739750121/1063970396";
+			#elif UNITY_ANDROID
+			adUnitId= "ca-app-pub-6653853739750121/5871150927";
+			#else
+			adUnitId = "unexpected_platform";
+			#endif
 		}
  
         // Create a 320x50 banner at the top of the screen.

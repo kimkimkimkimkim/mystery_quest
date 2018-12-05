@@ -42,6 +42,7 @@ public class ClearAnimation : MonoBehaviour {
 	}
 
 	public void StartAnimation(){
+		GetGold();
 		PlayerPrefs.SetInt("stage",PlayerPrefs.GetInt("stage") + 1);
 		/*初期状態 */
 		containerUI.SetActive(true);
@@ -57,6 +58,12 @@ public class ClearAnimation : MonoBehaviour {
 		Debug.Log("before now:" + PlayerPrefs.GetInt("nowStage") + " reach:" + PlayerPrefs.GetInt("reachStage"));
 		PlayerPrefs.SetInt("reachStage",stagenum);
 		Debug.Log("after now:" + PlayerPrefs.GetInt("nowStage") + " reach:" + PlayerPrefs.GetInt("reachStage"));
+	}
+
+	/* Gold獲得 */
+	private void GetGold(){
+		int gold = 5;
+		PlayerPrefs.SetInt("gold",PlayerPrefs.GetInt("gold")+gold);
 	}
 
 	//screenDimmedのフェードイン

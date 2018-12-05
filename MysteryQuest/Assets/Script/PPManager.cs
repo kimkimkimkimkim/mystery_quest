@@ -11,6 +11,7 @@ public class PPManager : MonoBehaviour {
 			"userid" : string ユーザーid
 			"bgm" : int 0,1
 			"vibe" : int 0,1
+			"gold" : int 所持ゴールド
 		}
 	 */
 }
